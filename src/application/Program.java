@@ -70,6 +70,28 @@ public class Program {
         }
         finally {
             DB.closeStatement(pst);
+//            DB.closeConnection();
+        }
+
+        //atuaizar salario do vendedor
+        try {
+            conn = DB.getConnection();
+            pst = conn.prepareStatement(
+                    "UPDATE seller "
+                    + "SET BaseSalary = BaseSalary + ? "
+                    + "WHERE "
+                    + "(DepartmentId = ?)");
+            pst.setDouble(1, 200.0);
+            pst.setInt(2, 2);
+
+            int rowsAffected = pst.executeUpdate();
+            System.out.println("Done! Rows affected: " + rowsAffected);
+        }
+        catch (SQLException e) {
+            e.printStackTrace();
+        }
+        finally {
+            DB.closeStatement(pst);
             DB.closeConnection();
         }
     }
