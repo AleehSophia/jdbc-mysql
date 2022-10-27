@@ -97,22 +97,54 @@ public class Program {
         }
 
 //        deletar dados
+//        try {
+//            conn = DB.getConnection();
+//            pst = conn.prepareStatement(
+//                    "DELETE FROM department "
+//                    + "WHERE "
+//                    + "Id = ?");
+//            pst.setInt(1, 1);
+//
+//            int rowsAffected = pst.executeUpdate();
+//            System.out.println("Done! Rows affected: " + rowsAffected);
+//        }
+//        catch (SQLException e) {
+//            throw new DbIntegrityException(e.getMessage());
+//        }
+//        finally {
+//            DB.closeStatement(pst);
+////            DB.closeConnection();
+//        }
+
+//        transações
         try {
             conn = DB.getConnection();
-            pst = conn.prepareStatement(
-                    "DELETE FROM department "
-                    + "WHERE "
-                    + "Id = ?");
-            pst.setInt(1, 1);
+            conn.setAutoCommit(false);
 
-            int rowsAffected = pst.executeUpdate();
-            System.out.println("Done! Rows affected: " + rowsAffected);
+            st = conn.createStatement();
+
+            int rows1 = st.executeUpdate("UPDATE seller SET baseSalary = 2090 WHERE DepartmentId = 1");
+            int x = 1;
+//            if (x < 2) {
+//                throw new SQLException("Fake error");
+//            }
+            int rows2 = st.executeUpdate("UPDATE seller SET baseSalary = 3090 WHERE DepartmentId = 2");
+            conn.commit();
+
+            System.out.println("rows1 " + rows1);
+            System.out.println("rows2 " + rows2);
         }
         catch (SQLException e) {
-            throw new DbIntegrityException(e.getMessage());
+            try {
+                conn.rollback();
+                throw new DbException("Transaction rolled back! Caused by: " + e.getMessage());
+            }
+            catch (SQLException e1) {
+                throw new DbException("Error trying to rollback! Caused by: " + e.getMessage());
+            }
         }
         finally {
-            DB.closeStatement(pst);
+            DB.closeStatement(st);
             DB.closeConnection();
         }
     }
