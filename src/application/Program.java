@@ -2,6 +2,7 @@ package application;
 
 import db.DB;
 import db.DbException;
+import db.DbIntegrityException;
 
 import java.sql.*;
 import java.text.ParseException;
@@ -89,6 +90,26 @@ public class Program {
         }
         catch (SQLException e) {
             e.printStackTrace();
+        }
+        finally {
+            DB.closeStatement(pst);
+//            DB.closeConnection();
+        }
+
+//        deletar dados
+        try {
+            conn = DB.getConnection();
+            pst = conn.prepareStatement(
+                    "DELETE FROM department "
+                    + "WHERE "
+                    + "Id = ?");
+            pst.setInt(1, 1);
+
+            int rowsAffected = pst.executeUpdate();
+            System.out.println("Done! Rows affected: " + rowsAffected);
+        }
+        catch (SQLException e) {
+            throw new DbIntegrityException(e.getMessage());
         }
         finally {
             DB.closeStatement(pst);
